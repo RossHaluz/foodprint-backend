@@ -148,7 +148,7 @@ model Order {
   orderNumber    String      @default("")
   message        String      @default("")
   messagngerType String      @default("")
-  userName       String      @default("")
+  messenger      String      @default("")
   totalPrice     Int         @default(0)
   orderStatus    OrderTypes  @default(new)
   orderItems     OrderItem[] @relation("OrderItems")
@@ -208,8 +208,8 @@ model ProductCharacteristic {
   createAt         DateTime                           @default(now())
   updateAt         DateTime                           @updatedAt
 
-  @@index([productId])
-  @@index([characteristicId])
+  @@unique([productId, characteristicId])
+  @@index([characteristicId, productId])
 }
 
 model ProductCharacteristicTranslation {
@@ -274,14 +274,14 @@ model ReviewTranslation {
 }
 
 model Feedback {
-  id            String   @id @default(uuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  name          String
-  email         String
-  messenger     String
-  typeMessanger String
-  message       String
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  firstName      String
+  email          String
+  messenger      String
+  messagngerType String
+  message        String
 }
 
 model DeliveryInfo {

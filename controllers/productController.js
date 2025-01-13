@@ -313,59 +313,32 @@ const addCharacteristicToProduct = async (req, res) => {
   const body = req.body;
   const { characteristic } = body;
 
-  for (const char of characteristic) {
-    const { characteristicId, descriptions, name } = char;
+  await prismadb.productCharacteristic.deleteMany({
+    where: {
+      productId,
+    },
+  });
 
-    let productCharacteristic = await prismadb.productCharacteristic.findFirst({
-      where: {
-        productId,
-        characteristicId,
-      },
-    });
-
-    if (!productCharacteristic) {
-      productCharacteristic = await prismadb.productCharacteristic.create({
+  await Promise.all(
+    characteristic?.map(async ({ name, characteristicId, descriptions }) => {
+      await prismadb.productCharacteristic.create({
         data: {
-          name,
+          name: name,
+          characteristicId: characteristicId,
           productId,
-          characteristicId,
+          ...(descriptions &&
+            descriptions?.length > 0 && {
+              translations: {
+                create: descriptions.map((item) => ({
+                  description: item?.text,
+                  languageCode: item?.languageId,
+                })),
+              },
+            }),
         },
       });
-    }
-
-    for (const description of descriptions) {
-      const { languageId, text } = description;
-
-      const existingTranslation =
-        await prismadb.productCharacteristicTranslation.findUnique({
-          where: {
-            productCharacteristicId_languageCode: {
-              productCharacteristicId: productCharacteristic.id,
-              languageCode: languageId,
-            },
-          },
-        });
-
-      if (existingTranslation) {
-        await prismadb.productCharacteristicTranslation.update({
-          where: {
-            id: existingTranslation.id,
-          },
-          data: {
-            description: text,
-          },
-        });
-      } else {
-        await prismadb.productCharacteristicTranslation.create({
-          data: {
-            languageCode: languageId,
-            description: text,
-            productCharacteristicId: productCharacteristic.id,
-          },
-        });
-      }
-    }
-  }
+    })
+  );
 
   res.status(200).json(
     HttpSuccess({

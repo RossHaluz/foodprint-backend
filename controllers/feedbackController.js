@@ -33,15 +33,15 @@ const getFeedbackDetails = async (req, res) => {
 //Create feedback
 const createFeedback = async (req, res) => {
   const body = req.body;
-  const { name, email, messenger, typeMessanger, message } = body;
+  const { firstName, email, messenger, messagngerType, message } = body;
 
   const newFeedback = await prismadb.feedback.create({
     data: {
-      name,
+      firstName,
       email,
       message,
       messenger,
-      typeMessanger,
+      messagngerType,
     },
   });
 

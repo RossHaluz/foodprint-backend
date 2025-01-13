@@ -64,7 +64,7 @@ const createOrder = async (req, res) => {
       phone: phone || "",
       message: message || "",
       messagngerType: messagngerType || "",
-      userName: messenger || "",
+      messenger: messenger || "",
     },
   });
 
@@ -207,7 +207,7 @@ const updateOrder = async (req, res) => {
       email: body?.email,
       message: body?.message,
       messagngerType: body?.messagngerType,
-      userName: body?.userName,
+      messenger: body?.messenger,
       totalPrice: body?.totalPrice,
       orderStatus: body?.orderStatus,
     },
