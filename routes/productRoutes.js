@@ -12,6 +12,9 @@ const {
 const { checkAuth, authorizeRole, upload } = require("../middlewars");
 const router = require("express").Router();
 
+//Get additional products
+router.get("/additional", getAdditionalProduct);
+
 //Get best products
 router.get("/best", getBestProducts);
 
@@ -20,9 +23,6 @@ router.get("/", getProducts);
 
 //Get product details - Ok
 router.get("/:productId", getProductDetails);
-
-//Get additional products
-router.get("/additional", getAdditionalProduct);
 
 //Create review for product - Ok
 router.post("/:productId/review", upload.array("photos"), createReviewProduct);

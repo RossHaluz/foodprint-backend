@@ -435,13 +435,17 @@ const getAdditionalProduct = async (req, res) => {
       type: "additional",
     },
     include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
       images: true,
       translations: true,
-      category: true,
     },
   });
 
-  return res.status(200).json(additionalProducts);
+  return res.status(200).json(HttpSuccess(additionalProducts));
 };
 
 //Get best products

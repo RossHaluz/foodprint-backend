@@ -122,6 +122,8 @@ const getOrders = async (req, res) => {
       },
     });
 
+    console.log(paidOrders);
+
     return res.status(200).json(HttpSuccess(paidOrders));
   }
 
