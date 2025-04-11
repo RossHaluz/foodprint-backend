@@ -27,7 +27,7 @@
   "main": "app.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.js -p 4000",
     "start:dev": "nodemon server.js"
   },
   "keywords": [],
