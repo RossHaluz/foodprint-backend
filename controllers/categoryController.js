@@ -4,7 +4,7 @@ const { prismadb } = require("../prismaClient");
 // Create category
 const createCategory = async (req, res) => {
   const body = req.body;
-  const { name, billboardId, parentId, type } = body;
+  const { name, parentId, type } = body;
 
   if (parentId) {
     const parentCategory = await prismadb.category.findUnique({
@@ -20,11 +20,6 @@ const createCategory = async (req, res) => {
     data: {
       name,
       type,
-      ...(billboardId && {
-        billboard: {
-          connect: { id: billboardId },
-        },
-      }),
       ...(parentId && {
         parent: {
           connect: { id: parentId },
@@ -38,14 +33,11 @@ const createCategory = async (req, res) => {
 
 // Get  max 4 or all  categories
 const getCategories = async (req, res) => {
-  const { limit } = req.query;
-
   const categories = await prismadb.category.findMany({
     where: {
       type: "main",
     },
     include: {
-      billboard: true,
       products: true,
       children: {
         include: {
@@ -53,7 +45,6 @@ const getCategories = async (req, res) => {
         },
       },
     },
-    take: limit ? parseFloat(limit) : undefined,
   });
 
   return res.status(200).json(HttpSuccess(categories));
@@ -69,12 +60,7 @@ const getCategoryDetails = async (req, res) => {
       id: categoryId,
     },
     include: {
-      children: {
-        include: {
-          billboard: true,
-        },
-      },
-
+      children: true,
       products: {
         where: {
           categoryId,

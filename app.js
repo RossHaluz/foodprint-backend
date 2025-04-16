@@ -1,8 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./swagger");
 const multer = require("multer");
 dotenv.config();
 
@@ -10,7 +8,6 @@ const app = express();
 
 //Routes
 const authRoutes = require("./routes/authRoutes");
-const billboardRoutes = require("./routes/billbordRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
 const characteristicRoutes = require("./routes/characteristicRoutes");
@@ -39,10 +36,8 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(express.static("public"));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/billboard", billboardRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/characteristic", characteristicRoutes);

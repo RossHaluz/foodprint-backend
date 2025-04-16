@@ -7,28 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model HeroBillboards {
-  id           String                      @id @default(uuid())
-  createdAt    DateTime                    @default(now())
-  updatedAt    DateTime                    @updatedAt
-  image        String
-  title        String                      @default("")
-  subtitle     String                      @default("")
-  url          String
-  translations HeroBillboardsTranslation[] @relation("TranslationToHeroBillboards")
-}
-
-model HeroBillboardsTranslation {
-  id              String         @id @default(uuid())
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  title           String         @default("")
-  langCode        String
-  subtitle        String         @default("")
-  heroBillboardId String
-  heroBillboard   HeroBillboards @relation("TranslationToHeroBillboards", fields: [heroBillboardId], references: [id], onDelete: Cascade)
-}
-
 model Language {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
@@ -37,35 +15,23 @@ model Language {
   code      String
 }
 
-model Billboard {
-  id         String     @id @default(uuid())
-  label      String
-  imageUrl   String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  categories Category[]
-}
-
 enum TypeCategory {
   main
   subcategory
 }
 
 model Category {
-  id          String            @id @default(uuid())
-  billboardId String?
-  billboard   Billboard?        @relation(fields: [billboardId], references: [id], onDelete: Cascade)
-  products    ProductCategory[] @relation("ProductToCategory")
-  name        String
-  type        TypeCategory      @default(main)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  parentId    String?
-  parent      Category?         @relation("ParentToCategory", fields: [parentId], references: [id], onDelete: Cascade)
-  children    Category[]        @relation("ParentToCategory")
-  maxPrice    Decimal?          @db.Decimal(10, 2)
+  id        String            @id @default(uuid())
+  products  ProductCategory[] @relation("ProductToCategory")
+  name      String
+  type      TypeCategory      @default(main)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  parentId  String?
+  parent    Category?         @relation("ParentToCategory", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Category[]        @relation("ParentToCategory")
 
-  @@index([billboardId])
+  @@index([parentId])
 }
 
 enum ProductType {
@@ -94,7 +60,6 @@ model Product {
   price                  Int                     @default(0)
   type                   ProductType             @default(main)
   isArchived             Boolean                 @default(false)
-  isFeatured             Boolean                 @default(false)
   backgroundColor        String                  @default("")
   textColor              String                  @default("")
   position               Int                     @default(1)
@@ -164,8 +129,8 @@ model OrderItem {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  orderId   String
   price     String   @default("")
+  orderId   String
   order     Order    @relation("OrderItems", fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)

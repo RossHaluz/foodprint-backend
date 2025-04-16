@@ -118,7 +118,7 @@ const createProduct = async (req, res) => {
 
           try {
             await fs.access(tempUplod);
-            await fs.unlink(tempUplod); // Якщо файл є, видаляємо його
+            await fs.unlink(tempUplod);
           } catch (error) {
             console.log(`Файл не знайдено для видалення: ${tempUplod}`);
           }
@@ -137,11 +137,10 @@ const createProduct = async (req, res) => {
       description: body?.description,
       backgroundColor: body?.backgroundColor,
       textColor: body?.textColor,
-      price: body?.price,
+      price: parseInt(body?.price),
       article: String(body?.article),
       position: parseInt(body?.position),
       isArchived: body?.isArchived,
-      isFeatured: body?.isFeatured,
       type: body?.type,
       ...(images.length > 0 && {
         images: { create: images.map((image) => ({ url: image })) },
@@ -235,7 +234,6 @@ const updateProducts = async (req, res) => {
       price: parseInt(body?.price),
       position: body?.position ? Number(body?.position) : 1,
       isArchived: body?.isArchived,
-      isFeatured: body?.isFeatured,
     },
   });
 
