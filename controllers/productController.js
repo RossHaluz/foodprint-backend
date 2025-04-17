@@ -137,7 +137,8 @@ const createProduct = async (req, res) => {
       description: body?.description,
       backgroundColor: body?.backgroundColor,
       textColor: body?.textColor,
-      price: parseInt(body?.price),
+      price:
+        typeof body.price === "string" ? parseInt(body.price, 2) : body.price,
       article: String(body?.article),
       position: parseInt(body?.position),
       isArchived: body?.isArchived,
