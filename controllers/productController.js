@@ -93,8 +93,11 @@ const getProducts = async (req, res) => {
 //Create product
 const createProduct = async (req, res) => {
   const rawBody = req.body;
+  console.log("rawBody", rawBody);
   const files = req.files;
   const body = parseFormData(rawBody);
+  console.log("body", body);
+
   const { error, value: validatedData } = validateProductData(body);
   console.log("error", error);
   console.log("validatedData", validatedData);
