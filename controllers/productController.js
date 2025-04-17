@@ -131,18 +131,13 @@ const createProduct = async (req, res) => {
     );
   }
 
-  const price = Number(body?.price);
-  if (isNaN(price)) {
-    return res.status(400).json({ message: "Ціна повинна бути числом" });
-  }
-
   const newProduct = await prismadb.product.create({
     data: {
       title: body?.title.toLowerCase(),
       description: body?.description,
       backgroundColor: body?.backgroundColor,
       textColor: body?.textColor,
-      price,
+      price: Number(body?.price),
       article: String(body?.article),
       position: parseInt(body?.position),
       isArchived: body?.isArchived,
