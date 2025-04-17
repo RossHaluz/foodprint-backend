@@ -92,6 +92,7 @@ const getProducts = async (req, res) => {
 
 //Create product
 const createProduct = async (req, res) => {
+  console.log("hello");
   const rawBody = req.body;
   console.log("rawBody", rawBody);
   const files = req.files;
