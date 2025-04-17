@@ -96,6 +96,9 @@ const createProduct = async (req, res) => {
   const files = req.files;
   const body = parseFormData(rawBody);
   const { error, value: validatedData } = validateProductData(body);
+  console.log("error", error);
+  console.log("validatedData", validatedData);
+
   if (error) {
     return res.status(400).json({ message: error.message });
   }
