@@ -16,7 +16,7 @@ const loginSchema = joi.object({
 const productSchema = joi.object({
   title: joi.string().required(),
   article: joi.alternatives().try(joi.string(), joi.number()),
-  price: joi.number(),
+  price: joi.string(),
   position: joi.number().default(1),
   type: joi.string().default("main"),
   isFeatured: joi.boolean().default(false),
