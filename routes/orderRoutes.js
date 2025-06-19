@@ -6,6 +6,7 @@ const {
   getOrderDetails,
   addItemToOrder,
   removeItemFromOrder,
+  updateOrderItem,
 } = require("../controllers/orderController");
 const { checkAuth, authorizeRole } = require("../middlewars");
 
@@ -31,6 +32,9 @@ router.delete("/:orderId/delete", deleteOrder);
 
 //Add item to order - Ok
 router.post("/:orderId/item", addItemToOrder);
+
+//Update order item
+router.put("/:orderId/item/:itemId", updateOrderItem);
 
 //Delete item from order - Ok
 router.delete("/:orderId/item/:itemId", removeItemFromOrder);

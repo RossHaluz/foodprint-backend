@@ -92,16 +92,11 @@ const getProducts = async (req, res) => {
 
 //Create product
 const createProduct = async (req, res) => {
-  console.log("hello");
   const rawBody = req.body;
-  console.log("rawBody", rawBody);
   const files = req.files;
   const body = parseFormData(rawBody);
-  console.log("body", body);
 
   const { error, value: validatedData } = validateProductData(body);
-  console.log("error", error);
-  console.log("validatedData", validatedData);
 
   if (error) {
     return res.status(400).json({ message: error.message });

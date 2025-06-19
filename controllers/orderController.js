@@ -22,8 +22,6 @@ const createOrder = async (req, res) => {
     isPaid,
     products,
   } = body;
-  let totalPrice = 0;
-
   const findUser = await prismadb.user.findFirst({
     where: {
       email,
@@ -68,8 +66,13 @@ const createOrder = async (req, res) => {
     },
   });
 
+  let totalPrice = 0;
+
   if (products && products?.length > 0) {
-    products?.map((item) => (totalPrice = totalPrice + item?.price));
+    console.log("products", products);
+    products.forEach((item) => {
+      totalPrice += item?.price * item.quantity || 0;
+    });
     await prismadb.orderItem.createMany({
       data: products?.map((item) => ({
         productId: item.productId,
@@ -81,25 +84,23 @@ const createOrder = async (req, res) => {
 
     await prismadb.order.update({
       where: {
-        id: order?.id,
+        id: newOrder?.id,
       },
       data: {
-        totalPrice,
+        totalPrice: parseInt(totalPrice),
       },
     });
   }
 
-  // if (store?.smtp_email && store?.smtp_password) {
-  //   await sendMessageOrder({
-  //     email: body?.email,
-  //     userName: body?.messenger,
-  //     messagngerType: body?.typeMessanger,
-  //     name: body?.name,
-  //     message: body?.message,
-  //     smtp_email: store.smtp_email,
-  //     smtp_password: store.smtp_password,
-  //   });
-  // }
+  await sendMessageOrder({
+    email: body?.email,
+    userName: body?.messenger,
+    messagngerType: body?.typeMessanger,
+    name: body?.name,
+    message: body?.message,
+    smtp_email: process.env.SMTP_EMAIL,
+    smtp_password: process.env.SMTP_PASSWORD,
+  });
 
   return res.status(200).json(HttpSuccess(newOrder));
 };
@@ -131,8 +132,6 @@ const getOrders = async (req, res) => {
         },
       },
     });
-
-    console.log(paidOrders);
 
     return res.status(200).json(HttpSuccess(paidOrders));
   }
@@ -276,72 +275,99 @@ const getOrderDetails = async (req, res) => {
 //Add item to order
 const addItemToOrder = async (req, res) => {
   const body = req.body;
+  const { productId, quantity } = body;
   const { orderId } = req.params;
 
-  let totalPrice = 0;
-
-  const productPrice = await prismadb.product.findUnique({
-    where: {
-      id: body?.productId,
-    },
-  });
-
-  totalPrice = productPrice?.price * body?.quantity;
-
-  const product = await prismadb.order.findUnique({
+  const order = await prismadb.order.findUnique({
     where: {
       id: orderId,
     },
+    include: {
+      orderItems: true,
+    },
   });
+
+  if (!order) {
+    throw HttpError("Order not found", 404);
+  }
+
+  const exisrtOrderItem = await prismadb.orderItem.findUnique({
+    where: {
+      productId_orderId: {
+        productId,
+        orderId,
+      },
+    },
+  });
+
+  if (exisrtOrderItem) {
+    await prismadb.orderItem.update({
+      where: {
+        id: exisrtOrderItem?.id,
+      },
+      data: {
+        quantity: {
+          increment: quantity,
+        },
+      },
+    });
+  } else if (!exisrtOrderItem) {
+    const product = await prismadb.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
+    await prismadb.orderItem.create({
+      data: {
+        productId,
+        quantity,
+        orderId,
+        price: product?.price,
+      },
+    });
+  }
+
+  let totalPrice = 0;
+
+  const orderItems = await prismadb.orderItem.findMany({
+    where: {
+      orderId,
+    },
+  });
+
+  orderItems?.forEach((item) => (totalPrice += item?.price * item?.quantity));
 
   await prismadb.order.update({
     where: {
       id: orderId,
     },
     data: {
-      totalPrice: product?.totalPrice + totalPrice,
+      totalPrice,
     },
   });
 
-  const orderItem = await prismadb.orderItem.findFirst({
-    where: {
-      productId: body?.productId,
-    },
-  });
-
-  const itemToOrder = await prismadb.orderItem.upsert({
-    where: {
-      productId_orderId: {
-        productId: body?.productId,
-        orderId: orderId,
-      },
-    },
-    update: {
-      quantity: (orderItem?.quantity || 0) + Number(body?.quantity || 0),
-    },
-    create: {
-      orderId,
-      quantity: Number(body?.quantity || 0),
-      productId: body?.productId,
-      price: orderItem?.price,
-    },
-  });
-
-  if (!itemToOrder) {
-    throw HttpError("Something went wrong...", 400);
-  }
-
-  return res.status(200).json(HttpSuccess(itemToOrder));
+  return res.status(200).json(HttpSuccess("Success added item"));
 };
 
 //Remove order from order
 const removeItemFromOrder = async (req, res) => {
   const { orderId, itemId } = req.params;
 
+  const orderItem = await prismadb.orderItem.findFirst({
+    where: {
+      AND: [{ id: itemId }, { orderId: orderId }],
+    },
+  });
+
+  if (!orderItem) {
+    return res.status(404).json({ message: "Order item not found" });
+  }
+
   const deleteItemFromOrder = await prismadb.orderItem.delete({
     where: {
-      orderId,
       id: itemId,
+      orderId,
     },
   });
 
@@ -349,11 +375,93 @@ const removeItemFromOrder = async (req, res) => {
     throw HttpError("Something went wrong...", 400);
   }
 
+  let totalPrice = 0;
+
+  const orderItems = await prismadb.orderItem.findMany({
+    where: {
+      orderId,
+    },
+  });
+
+  orderItems?.forEach((item) => (totalPrice += item?.price * item?.quantity));
+
+  await prismadb.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      totalPrice,
+    },
+  });
+
   return res.status(200).json(
     HttpSuccess({
       message: "The product has been successfully removed from the order",
     })
   );
+};
+
+//Update order item
+const updateOrderItem = async (req, res) => {
+  const { orderId, itemId } = req.params;
+  console.log(req.params);
+  const body = req.body;
+
+  const order = await prismadb.order.findUnique({
+    where: {
+      id: orderId,
+    },
+  });
+
+  if (!order) {
+    throw HttpError("Order not found", 404);
+  }
+
+  const orderItem = await prismadb.orderItem.findFirst({
+    where: {
+      orderId,
+      id: itemId,
+    },
+  });
+
+  if (!orderItem) {
+    throw HttpError("Order item not found", 404);
+  }
+
+  const updateItem = await prismadb.orderItem.update({
+    where: {
+      id: itemId,
+      orderId,
+    },
+    data: {
+      ...body,
+    },
+  });
+
+  if (!updateItem) {
+    throw HttpError("Something went wrong", 400);
+  }
+
+  const orderItems = await prismadb.orderItem.findMany({
+    where: {
+      orderId,
+    },
+  });
+
+  let totalPrice = 0;
+
+  orderItems.forEach((item) => (totalPrice += item?.price * item?.quantity));
+
+  await prismadb.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      totalPrice: parseInt(totalPrice),
+    },
+  });
+
+  return res.status(200).json(HttpSuccess(updateItem));
 };
 
 module.exports = {
@@ -364,4 +472,5 @@ module.exports = {
   getOrderDetails: CtrlWrapper(getOrderDetails),
   addItemToOrder: CtrlWrapper(addItemToOrder),
   removeItemFromOrder: CtrlWrapper(removeItemFromOrder),
+  updateOrderItem: CtrlWrapper(updateOrderItem),
 };

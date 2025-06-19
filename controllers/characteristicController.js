@@ -25,11 +25,11 @@ const getCharacteristicDetails = async (req, res) => {
     },
   });
 
-  if (!characteristicDetails){
+  if (!characteristicDetails) {
     throw HttpError("Characteristic not found", 404);
   }
 
-    return res.status(200).json(HttpSuccess(characteristicDetails));
+  return res.status(200).json(HttpSuccess(characteristicDetails));
 };
 
 //Create characteristic
@@ -59,7 +59,7 @@ const createCharacteristic = async (req, res) => {
 //Update characteristic
 const updateCharacteristic = async (req, res) => {
   const body = req.body;
-  const {characteristicId } = req.params;
+  const { characteristicId } = req.params;
   const { name, translations } = body;
 
   const updatedCharacteristic = await prismadb.characteristic.update({
@@ -110,7 +110,6 @@ const updateCharacteristic = async (req, res) => {
 //Delete characteristic
 const deleteCharacteristic = async (req, res) => {
   const { characteristicId } = req.params;
-
   await prismadb.characteristic.delete({
     where: {
       id: characteristicId,
