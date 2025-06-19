@@ -285,6 +285,8 @@ const updateProducts = async (req, res) => {
   }
 
   if (categories && categories.length > 0) {
+    console.log("categories", categories);
+    console.log("type categories", typeof categories);
     try {
       await Promise.all(
         categories.map((item) =>
