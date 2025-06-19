@@ -193,11 +193,9 @@ const createProduct = async (req, res) => {
 //Update product
 const updateProducts = async (req, res) => {
   const rawBody = req.body;
-  console.log("rawBody", rawBody);
   const body = parseFormData(rawBody);
   const { productId } = req.params;
   const { translations, categories } = body;
-  console.log("body", body);
   const files = req.files;
   const images = [];
 
@@ -285,29 +283,17 @@ const updateProducts = async (req, res) => {
   }
 
   if (categories && categories.length > 0) {
-    console.log("categories", categories);
-    console.log("type categories", typeof categories);
     try {
-      await Promise.all(
-        categories.map((item) =>
-          prismadb.productCategory.upsert({
-            where: {
-              productId_categoryId: {
-                productId,
-                categoryId: item.categoryId,
-              },
-            },
-            create: {
-              productId,
-              categoryId: item.categoryId,
-            },
-            update: {
-              productId,
-              categoryId: item.categoryId,
-            },
-          })
-        )
-      );
+      await prismadb.productCategory.deleteMany({
+        where: { productId },
+      });
+
+      await prismadb.productCategory.createMany({
+        data: categories.map((item) => ({
+          productId,
+          categoryId: item.categoryId,
+        })),
+      });
     } catch (error) {
       console.error("Error while upserting product categories:", error);
     }
