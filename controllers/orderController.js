@@ -22,6 +22,7 @@ const createOrder = async (req, res) => {
     isPaid,
     products,
   } = body;
+  let totalPrice = 0;
 
   const findUser = await prismadb.user.findFirst({
     where: {
@@ -54,7 +55,6 @@ const createOrder = async (req, res) => {
   const newOrder = await prismadb.order.create({
     data: {
       email,
-      totalPrice: 0,
       orderNumber: newOrderNumber.toString(),
       userId: user?.id || "",
       orderStatus: orderStatus,
@@ -69,6 +69,7 @@ const createOrder = async (req, res) => {
   });
 
   if (products && products?.length > 0) {
+    products?.map((item) => (totalPrice = totalPrice + item?.price));
     await prismadb.orderItem.createMany({
       data: products?.map((item) => ({
         productId: item.productId,
@@ -76,6 +77,15 @@ const createOrder = async (req, res) => {
         orderId: newOrder.id,
         price: item?.price,
       })),
+    });
+
+    await prismadb.order.update({
+      where: {
+        id: order?.id,
+      },
+      data: {
+        totalPrice,
+      },
     });
   }
 
