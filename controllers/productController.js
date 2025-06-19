@@ -193,9 +193,11 @@ const createProduct = async (req, res) => {
 //Update product
 const updateProducts = async (req, res) => {
   const rawBody = req.body;
+  console.log("rawBody", rawBody);
   const body = parseFormData(rawBody);
   const { productId } = req.params;
   const { translations, categories } = body;
+  console.log("body", body);
   const files = req.files;
   const images = [];
 
