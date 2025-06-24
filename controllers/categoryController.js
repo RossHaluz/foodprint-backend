@@ -93,6 +93,7 @@ const updateCategory = async (req, res) => {
   const { categoryId } = req.params;
   const body = req.body;
   const { parentId } = body;
+  console.log("body", body);
 
   const updateCategory = await prismadb.category.update({
     where: {
