@@ -19,7 +19,7 @@ const createCategory = async (req, res) => {
   const newCategory = await prismadb.category.create({
     data: {
       name,
-      position,
+      position: position ? parseInt(position) : 1,
       type,
       ...(parentId && {
         parent: {
@@ -100,6 +100,7 @@ const updateCategory = async (req, res) => {
     },
     data: {
       ...body,
+      position: position ? parseInt(position) : 1,
       parentId: parentId || null,
     },
   });
