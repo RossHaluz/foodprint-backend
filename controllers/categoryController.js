@@ -4,7 +4,7 @@ const { prismadb } = require("../prismaClient");
 // Create category
 const createCategory = async (req, res) => {
   const body = req.body;
-  const { name, parentId, type } = body;
+  const { name, parentId, type, position } = body;
 
   if (parentId) {
     const parentCategory = await prismadb.category.findUnique({
@@ -19,6 +19,7 @@ const createCategory = async (req, res) => {
   const newCategory = await prismadb.category.create({
     data: {
       name,
+      position,
       type,
       ...(parentId && {
         parent: {

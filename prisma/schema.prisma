@@ -30,6 +30,7 @@ model Category {
   parentId  String?
   parent    Category?         @relation("ParentToCategory", fields: [parentId], references: [id], onDelete: Cascade)
   children  Category[]        @relation("ParentToCategory")
+  position  Int?              @default(1)
 
   @@index([parentId])
 }
