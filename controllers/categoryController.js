@@ -5,7 +5,6 @@ const { prismadb } = require("../prismaClient");
 const createCategory = async (req, res) => {
   const body = req.body;
   const { name, parentId, type } = body;
-  console.log("body", body);
 
   if (parentId) {
     const parentCategory = await prismadb.category.findUnique({
@@ -101,7 +100,7 @@ const updateCategory = async (req, res) => {
     },
     data: {
       ...body,
-      position: position ? parseInt(position) : 1,
+      position: body?.position ? parseInt(body?.position) : 1,
       parentId: parentId || null,
     },
   });
