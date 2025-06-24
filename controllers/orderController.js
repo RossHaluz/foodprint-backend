@@ -92,15 +92,15 @@ const createOrder = async (req, res) => {
     });
   }
 
-  // await sendMessageOrder({
-  //   email: body?.email,
-  //   userName: body?.messenger,
-  //   messagngerType: body?.typeMessanger,
-  //   name: body?.name,
-  //   message: body?.message,
-  //   smtp_email: process.env.SMTP_EMAIL,
-  //   smtp_password: process.env.SMTP_PASSWORD,
-  // });
+  await sendMessageOrder({
+    email: body?.email,
+    userName: body?.messenger,
+    messagngerType: body?.typeMessanger,
+    name: body?.name,
+    message: body?.message,
+    smtp_email: process.env.SMTP_EMAIL,
+    smtp_password: process.env.SMTP_PASSWORD,
+  });
 
   return res.status(200).json(HttpSuccess(newOrder));
 };

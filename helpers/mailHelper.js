@@ -8,8 +8,8 @@ const sendMail = async (email, subject, tempDir, variables) => {
       port: 587,
       secure: false,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
       },
     });
 
@@ -44,6 +44,9 @@ const sendMessageOrder = async ({
   smtp_email,
   smtp_password,
 }) => {
+  console.log("smtp_email", smtp_email);
+  console.log("smtp_password", smtp_password);
+
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -53,6 +56,9 @@ const sendMessageOrder = async ({
       pass: smtp_password,
     },
   });
+
+  console.log("transporter", transporter);
+
   let userMailOptions = {
     from: smtp_email,
     to: email,
@@ -81,14 +87,13 @@ const sendMessageFeedback = async ({
   smtp_email,
   smtp_password,
 }) => {
-  // Налаштування SMTP-сервера для надсилання пошти
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // Використовуємо STARTTLS
+    secure: false,
     auth: {
-      user: smtp_email, // ваш Gmail
-      pass: smtp_password, // пароль або спеціальний пароль для програм
+      user: smtp_email,
+      pass: smtp_password,
     },
   });
 
