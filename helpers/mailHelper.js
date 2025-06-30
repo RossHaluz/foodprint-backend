@@ -46,15 +46,15 @@ const sendMessageOrder = async ({
   const resend = new Resend(process.env.API_KEY_RESEND);
 
   let userMailOptions = {
-    from: smtp_email,
+    from: process.env.SMTP_EMAIL,
     to: email,
     subject: "Дякуємо за замовлення!",
     text: `Доброго дня, ${name}!\n\nДякуємо за ваш замовлення.\n\nМи якомога швидше зв'яжемося Вами.\n\nЗ повагою, FoodPrint Ukraine!`,
   };
 
   let adminMailOptions = {
-    from: smtp_email,
-    to: smtp_email,
+    from: process.env.SMTP_EMAIL,
+    to: process.env.SMTP_EMAIL,
     subject: "Нове замовлення",
     text: `Ви отримали нове замовлення.\n\nДеталі замовлення:\n\nІм'я: ${name}\n\nТип месенджера: ${messagngerType}\n\nІм'я користувача: ${userName}\n\nКоментарії:\n\n${message}`,
   };
