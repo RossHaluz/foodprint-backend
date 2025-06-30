@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const fs = require("fs");
+const { Resend } = require("resend");
 
 const sendMail = async (email, subject, tempDir, variables) => {
   try {
@@ -41,25 +42,8 @@ const sendMessageOrder = async ({
   message,
   messagngerType,
   userName,
-  smtp_email,
-  smtp_password,
 }) => {
-  console.log("sendMessageOrder викликано");
-  console.log("Email:", email);
-  console.log("Name:", name);
-  console.log("Messenger:", messagngerType);
-  console.log("smtp_email:", smtp_email);
-  console.log("smtp_password:", smtp_password);
-
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: smtp_email,
-      pass: smtp_password,
-    },
-  });
+  const resend = new Resend(process.env.API_KEY_RESEND);
 
   let userMailOptions = {
     from: smtp_email,
@@ -76,8 +60,8 @@ const sendMessageOrder = async ({
   };
 
   try {
-    await transporter.sendMail(userMailOptions);
-    await transporter.sendMail(adminMailOptions);
+    await resend.emails.send(userMailOptions);
+    await resend.emails.send(adminMailOptions);
     console.log("Листи успішно надіслані");
   } catch (error) {
     console.error("❌ Помилка при надсиланні пошти:", error);
