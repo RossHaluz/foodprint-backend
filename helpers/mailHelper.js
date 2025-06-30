@@ -44,8 +44,12 @@ const sendMessageOrder = async ({
   smtp_email,
   smtp_password,
 }) => {
-  console.log("smtp_email", smtp_email);
-  console.log("smtp_password", smtp_password);
+  console.log("sendMessageOrder викликано");
+  console.log("Email:", email);
+  console.log("Name:", name);
+  console.log("Messenger:", messagngerType);
+  console.log("smtp_email:", smtp_email);
+  console.log("smtp_password:", smtp_password);
 
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -56,8 +60,6 @@ const sendMessageOrder = async ({
       pass: smtp_password,
     },
   });
-
-  console.log("transporter", transporter);
 
   let userMailOptions = {
     from: smtp_email,
@@ -73,9 +75,13 @@ const sendMessageOrder = async ({
     text: `Ви отримали нове замовлення.\n\nДеталі замовлення:\n\nІм'я: ${name}\n\nТип месенджера: ${messagngerType}\n\nІм'я користувача: ${userName}\n\nКоментарії:\n\n${message}`,
   };
 
-  await transporter.sendMail(userMailOptions);
-
-  await transporter.sendMail(adminMailOptions);
+  try {
+    await transporter.sendMail(userMailOptions);
+    await transporter.sendMail(adminMailOptions);
+    console.log("Листи успішно надіслані");
+  } catch (error) {
+    console.error("❌ Помилка при надсиланні пошти:", error);
+  }
 };
 
 const sendMessageFeedback = async ({
