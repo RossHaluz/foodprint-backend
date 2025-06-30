@@ -98,7 +98,7 @@ const createOrder = async (req, res) => {
     email: body?.email,
     userName: body?.messenger,
     messagngerType: body?.messagngerType,
-    name: body?.name,
+    name: body?.firstName,
     message: body?.message,
   });
 
