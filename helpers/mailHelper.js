@@ -74,38 +74,30 @@ const sendMessageFeedback = async ({
   message,
   messenger,
   typeMessanger,
-  smtp_email,
-  smtp_password,
 }) => {
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: smtp_email,
-      pass: smtp_password,
-    },
-  });
+  const resend = new Resend(process.env.API_KEY_RESEND);
 
   let userMailOptions = {
-    from: smtp_email,
+    from: "FoodPrint <info@foodprint.si>",
     to: email,
     subject: "Дякуємо за ваше звернення!",
     text: `Доброго дня, ${name}!\n\nДякуємо за ваш звернення. Ми якомога швидше зв'яжемося Вами.`,
   };
 
   let adminMailOptions = {
-    from: smtp_email,
-    to: smtp_email,
+    from: "FoodPrint <info@foodprint.si>",
+    to: process.env.SMTP_EMAIL,
     subject: "Новий відгук від користувача",
     text: `Ви отримали новий запит від ${name}\nEmail: ${email}\nТип месенджера: ${typeMessanger}\nНік: ${messenger}\nОпис:\n${message}`,
   };
 
-  // Відправка листа користувачу
-  await transporter.sendMail(userMailOptions);
-
-  // Відправка листа адміністратору
-  await transporter.sendMail(adminMailOptions);
+  try {
+    await resend.emails.send(userMailOptions);
+    await resend.emails.send(adminMailOptions);
+    console.log("Листи успішно надіслані");
+  } catch (error) {
+    console.error("❌ Помилка при надсиланні пошти:", error);
+  }
 };
 
 const buildTemplate = async (template, variables) => {
