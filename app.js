@@ -19,6 +19,7 @@ const deliveryInfoRoutes = require("./routes/deliveryInfoRoutes");
 const paymentMethodRoutes = require("./routes/paymentMethodRoutes");
 const faqRoutes = require("./routes/faqRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const markRoutes = require("./routes/markRoutes");
 
 //Middlewars
 const corsOptions = {
@@ -49,6 +50,7 @@ app.use("/api/delivery-info", deliveryInfoRoutes);
 app.use("/api/payment-method", paymentMethodRoutes);
 app.use("/api/faq", faqRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/mark", markRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
